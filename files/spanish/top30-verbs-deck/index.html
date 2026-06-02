@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Los 30 verbos: repaso de conjugación</title>
+<style>
+  :root{
+    --cream:#F8F2E5; --ink:#2A2622; --terracotta:#C26B4D; --saffron:#D9A441;
+    --sage:#7A8C6F; --ocean:#3E6B7C; --good:#5E8C61; --bad:#C7584B;
+    --card:#FFFDF7;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:-apple-system,"Segoe UI",system-ui,"Helvetica Neue",sans-serif;
+    background:radial-gradient(circle at 50% 0%,#FBF6EC 0%,var(--cream) 60%);
+    color:var(--ink); min-height:100%; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:24px;
+  }
+  .stage{width:min(1040px,96vw)}
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px}
+  .chips{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .chip{font-weight:700; letter-spacing:.3px; padding:6px 14px; border-radius:999px; font-size:18px}
+  .chip-verb{background:var(--terracotta); color:#fff}
+  .chip-en{background:#fff; color:var(--ink); border:2px solid var(--saffron)}
+  .chip-tense{background:var(--ocean); color:#fff; font-size:15px; text-transform:uppercase; letter-spacing:1px}
+  .progress{font-size:15px; color:#8a8175; font-weight:600}
+  .score{font-size:15px; color:var(--sage); font-weight:700}
+  .card{
+    background:var(--card); border-radius:24px; padding:22px;
+    box-shadow:0 14px 40px rgba(70,50,30,.12); border:1px solid #efe6d4;
+  }
+  .imgwrap{display:flex; justify-content:center}
+  .imgwrap img{
+    width:min(380px,60vw); aspect-ratio:1/1; object-fit:cover;
+    border-radius:18px; background:#f0e8d8; box-shadow:0 8px 22px rgba(70,50,30,.14);
+  }
+  .imgwrap .ph{
+    width:min(380px,60vw); aspect-ratio:1/1; border-radius:18px; background:#f0e8d8;
+    display:flex; align-items:center; justify-content:center; color:#b6a98c; font-size:20px;
+  }
+  .prompt{text-align:center; margin:16px 0 8px; font-size:19px; color:#8a8175}
+  .options{display:flex; flex-direction:column; gap:14px; margin-top:6px}
+  .opt{
+    display:flex; align-items:center; gap:14px; text-align:left; cursor:pointer;
+    background:#fff; border:2.5px solid #e7dcc6; border-radius:16px; padding:18px 20px;
+    font-size:26px; font-weight:600; color:var(--ink); transition:transform .08s, border-color .15s, background .15s;
+    font-family:Georgia,"Times New Roman",serif;
+  }
+  .opt:hover{transform:translateY(-2px); border-color:var(--saffron)}
+  .opt .key{
+    flex:0 0 auto; width:38px; height:38px; border-radius:50%; background:var(--saffron); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; font-family:sans-serif;
+  }
+  .opt.correct{border-color:var(--good); background:#EEF5EC}
+  .opt.correct .key{background:var(--good)}
+  .opt.wrong{border-color:var(--bad); background:#FBEEEC}
+  .opt.wrong .key{background:var(--bad)}
+  .opt.dim{opacity:.55}
+  .opt[disabled]{cursor:default}
+  .feedback{
+    margin-top:16px; min-height:30px; text-align:center; font-size:20px; font-weight:600;
+    opacity:0; transition:opacity .2s;
+  }
+  .feedback.show{opacity:1}
+  .feedback .tag{font-weight:800}
+  .feedback .why{display:block; font-size:18px; font-weight:500; color:#6b6357; margin-top:4px}
+  .feedback .focus{display:inline-block; margin-top:8px; font-size:16px; background:var(--sage);
+    color:#fff; padding:4px 12px; border-radius:999px; font-weight:700; letter-spacing:.3px}
+  .nav{display:flex; align-items:center; justify-content:space-between; margin-top:18px}
+  .btn{
+    border:none; cursor:pointer; font-size:18px; font-weight:700; padding:12px 22px; border-radius:14px;
+    background:var(--ocean); color:#fff; box-shadow:0 6px 16px rgba(40,70,90,.2);
+  }
+  .btn.ghost{background:#fff; color:var(--ocean); border:2px solid var(--ocean); box-shadow:none}
+  .btn:disabled{opacity:.35; cursor:default}
+  .hint{font-size:14px; color:#a99f8c}
+  /* title + summary slides */
+  .splash{text-align:center; padding:40px 20px}
+  .splash h1{font-size:46px; margin:0 0 10px; color:var(--terracotta)}
+  .splash p{font-size:22px; color:#6b6357; margin:6px 0}
+  .splash .big{font-size:64px; font-weight:800; color:var(--sage); margin:18px 0}
+  .hide{display:none !important}
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <!-- TITLE -->
+  <div id="title" class="card splash">
+    <h1>Los 30 verbos</h1>
+    <p>Repaso de conjugación · A1-A2</p>
+    <p style="margin-top:18px">Mira la imagen. Elige la frase correcta: <b>A</b> o <b>B</b>.</p>
+    <p class="hint">Look at the picture. Pick the sentence with the right verb form.</p>
+    <div class="nav" style="justify-content:center; margin-top:28px">
+      <button class="btn" onclick="start()">Empezar &nbsp;&rarr;</button>
+    </div>
+    <p class="hint" style="margin-top:18px">Usa las flechas &larr; &rarr; del teclado · o los botones</p>
+  </div>
+
+  <!-- QUESTION -->
+  <div id="quiz" class="hide">
+    <div class="topbar">
+      <div class="chips">
+        <span class="chip chip-verb" id="cVerb"></span>
+        <span class="chip chip-en" id="cEn"></span>
+        <span class="chip chip-tense" id="cTense"></span>
+      </div>
+      <div style="text-align:right">
+        <div class="progress" id="cProg"></div>
+        <div class="score" id="cScore"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="imgwrap"><img id="cImg" alt="" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div class=ph>imagen</div>')"></div>
+      <div class="prompt">¿Cuál es correcta?</div>
+      <div class="options">
+        <button class="opt" id="optA" onclick="pick('a')"><span class="key">A</span><span id="txtA"></span></button>
+        <button class="opt" id="optB" onclick="pick('b')"><span class="key">B</span><span id="txtB"></span></button>
+      </div>
+      <div class="feedback" id="fb"></div>
+    </div>
+    <div class="nav">
+      <button class="btn ghost" id="prevBtn" onclick="go(-1)">&larr; Atrás</button>
+      <span class="hint" id="navHint"></span>
+      <button class="btn" id="nextBtn" onclick="go(1)">Siguiente &rarr;</button>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div id="summary" class="card splash hide">
+    <h1>¡Bien hecho!</h1>
+    <p>Tu resultado</p>
+    <div class="big" id="finalScore"></div>
+    <p id="finalMsg"></p>
+    <div class="nav" style="justify-content:center; margin-top:24px">
+      <button class="btn ghost" onclick="restart()">Otra vez</button>
+      <button class="btn" onclick="restart()">&nbsp;Repasar&nbsp;</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DATA = [{"n": 1, "verb": "ser", "en": "to be", "tense": "presente", "img": "images/01-ser.png", "a": "La mujer es profesora.", "b": "La mujer eres profesora.", "answer": "a", "why": "ella -> es. 'eres' is the tu form.", "focus": "ella -> es", "correct": "La mujer es profesora."}, {"n": 2, "verb": "estar", "en": "to be (state/place)", "tense": "presente", "img": "images/02-estar.png", "a": "El gato estás en la caja.", "b": "El gato está en la caja.", "answer": "b", "why": "él -> está. 'estás' is the tu form.", "focus": "él -> está", "correct": "El gato está en la caja."}, {"n": 3, "verb": "tener", "en": "to have", "tense": "presente", "img": "images/03-tener.png", "a": "El niño tiene un perro.", "b": "El niño tienen un perro.", "answer": "a", "why": "el niño is one person -> tiene. 'tienen' is for ellos.", "focus": "singular -> tiene", "correct": "El niño tiene un perro."}, {"n": 4, "verb": "ir", "en": "to go", "tense": "presente", "img": "images/04-ir.png", "a": "Los amigos va a la playa.", "b": "Los amigos van a la playa.", "answer": "b", "why": "los amigos is plural -> van.", "focus": "plural -> van", "correct": "Los amigos van a la playa."}, {"n": 5, "verb": "hacer", "en": "to make/do", "tense": "presente", "img": "images/05-hacer.png", "a": "La niña hace un pastel.", "b": "La niña haces un pastel.", "answer": "a", "why": "ella -> hace. 'haces' is the tu form.", "focus": "ella -> hace", "correct": "La niña hace un pastel."}, {"n": 6, "verb": "comer", "en": "to eat", "tense": "presente", "img": "images/06-comer.png", "a": "El hombre comen una manzana.", "b": "El hombre come una manzana.", "answer": "b", "why": "singular -> come. 'comen' is for ellos.", "focus": "singular -> come", "correct": "El hombre come una manzana."}, {"n": 7, "verb": "beber", "en": "to drink", "tense": "presente", "img": "images/07-beber.png", "a": "La niña bebe agua.", "b": "La niña bebes agua.", "answer": "a", "why": "ella -> bebe. 'bebes' is the tu form.", "focus": "ella -> bebe", "correct": "La niña bebe agua."}, {"n": 8, "verb": "vivir", "en": "to live", "tense": "presente", "img": "images/08-vivir.png", "a": "La familia viven en una casa azul.", "b": "La familia vive en una casa azul.", "answer": "b", "why": "la familia is singular -> vive.", "focus": "la familia -> vive", "correct": "La familia vive en una casa azul."}, {"n": 9, "verb": "hablar", "en": "to speak", "tense": "presente", "img": "images/09-hablar.png", "a": "Las chicas hablan por teléfono.", "b": "Las chicas habla por teléfono.", "answer": "a", "why": "plural -> hablan.", "focus": "plural -> hablan", "correct": "Las chicas hablan por teléfono."}, {"n": 10, "verb": "trabajar", "en": "to work", "tense": "presente", "img": "images/10-trabajar.png", "a": "El hombre trabajan en una oficina.", "b": "El hombre trabaja en una oficina.", "answer": "b", "why": "singular -> trabaja.", "focus": "singular -> trabaja", "correct": "El hombre trabaja en una oficina."}, {"n": 11, "verb": "estudiar", "en": "to study", "tense": "presente", "img": "images/11-estudiar.png", "a": "Los estudiantes estudian en la biblioteca.", "b": "Los estudiantes estudia en la biblioteca.", "answer": "a", "why": "plural -> estudian.", "focus": "plural -> estudian", "correct": "Los estudiantes estudian en la biblioteca."}, {"n": 12, "verb": "jugar", "en": "to play", "tense": "presente", "img": "images/12-jugar.png", "a": "Los niños jugan al fútbol.", "b": "Los niños juegan al fútbol.", "answer": "b", "why": "jugar stem-changes u->ue -> juegan.", "focus": "stem u->ue: juegan", "correct": "Los niños juegan al fútbol."}, {"n": 13, "verb": "correr", "en": "to run", "tense": "presente", "img": "images/13-correr.png", "a": "La mujer corre en el parque.", "b": "La mujer corren en el parque.", "answer": "a", "why": "singular -> corre.", "focus": "singular -> corre", "correct": "La mujer corre en el parque."}, {"n": 14, "verb": "leer", "en": "to read", "tense": "presente", "img": "images/14-leer.png", "a": "El abuelo lees un libro.", "b": "El abuelo lee un libro.", "answer": "b", "why": "él -> lee. 'lees' is the tu form.", "focus": "él -> lee", "correct": "El abuelo lee un libro."}, {"n": 15, "verb": "escribir", "en": "to write", "tense": "presente", "img": "images/15-escribir.png", "a": "La niña escribe una carta.", "b": "La niña escriben una carta.", "answer": "a", "why": "singular -> escribe.", "focus": "singular -> escribe", "correct": "La niña escribe una carta."}, {"n": 16, "verb": "cocinar", "en": "to cook", "tense": "presente", "img": "images/16-cocinar.png", "a": "El chef cocinas pasta.", "b": "El chef cocina pasta.", "answer": "b", "why": "él -> cocina. 'cocinas' is the tu form.", "focus": "él -> cocina", "correct": "El chef cocina pasta."}, {"n": 17, "verb": "dormir", "en": "to sleep", "tense": "presente", "img": "images/17-dormir.png", "a": "El gato duerme en el sofá.", "b": "El gato dorme en el sofá.", "answer": "a", "why": "dormir stem-changes o->ue -> duerme.", "focus": "stem o->ue: duerme", "correct": "El gato duerme en el sofá."}, {"n": 18, "verb": "cantar", "en": "to sing", "tense": "presente", "img": "images/18-cantar.png", "a": "La cantante cantan en el escenario.", "b": "La cantante canta en el escenario.", "answer": "b", "why": "singular -> canta.", "focus": "singular -> canta", "correct": "La cantante canta en el escenario."}, {"n": 19, "verb": "ver", "en": "to see/watch", "tense": "presente", "img": "images/19-ver.png", "a": "Ellos ven una película.", "b": "Ellos ve una película.", "answer": "a", "why": "ellos is plural -> ven.", "focus": "plural -> ven", "correct": "Ellos ven una película."}, {"n": 20, "verb": "querer", "en": "to want", "tense": "presente", "img": "images/20-querer.png", "a": "La niña quere un helado.", "b": "La niña quiere un helado.", "answer": "b", "why": "querer stem-changes e->ie -> quiere.", "focus": "stem e->ie: quiere", "correct": "La niña quiere un helado."}, {"n": 21, "verb": "poder", "en": "to be able / can", "tense": "presente", "img": "images/21-poder.png", "a": "El superhéroe puede volar.", "b": "El superhéroe pode volar.", "answer": "a", "why": "poder stem-changes o->ue -> puede.", "focus": "stem o->ue: puede", "correct": "El superhéroe puede volar."}, {"n": 22, "verb": "abrir", "en": "to open", "tense": "presente", "img": "images/22-abrir.png", "a": "El hombre abren la puerta.", "b": "El hombre abre la puerta.", "answer": "b", "why": "singular -> abre.", "focus": "singular -> abre", "correct": "El hombre abre la puerta."}, {"n": 23, "verb": "comprar", "en": "to buy", "tense": "presente", "img": "images/23-comprar.png", "a": "La mujer compra frutas.", "b": "La mujer compran frutas.", "answer": "a", "why": "singular -> compra.", "focus": "singular -> compra", "correct": "La mujer compra frutas."}, {"n": 24, "verb": "venir", "en": "to come", "tense": "presente", "img": "images/24-venir.png", "a": "El autobús vene a la parada.", "b": "El autobús viene a la parada.", "answer": "b", "why": "venir is irregular -> viene (not 'vene').", "focus": "irregular: viene", "correct": "El autobús viene a la parada."}, {"n": 25, "verb": "ir", "en": "to go", "tense": "pretérito", "img": "images/25-ir-pret.png", "a": "Ayer yo fui a la playa.", "b": "Ayer yo fue a la playa.", "answer": "a", "why": "yo -> fui. 'fue' is él/ella.", "focus": "yo -> fui", "correct": "Ayer yo fui a la playa."}, {"n": 26, "verb": "ser", "en": "to be", "tense": "pretérito", "img": "images/26-ser-pret.png", "a": "La fiesta fui divertida.", "b": "La fiesta fue divertida.", "answer": "b", "why": "la fiesta -> fue. 'fui' means 'I'.", "focus": "la fiesta -> fue", "correct": "La fiesta fue divertida."}, {"n": 27, "verb": "tener", "en": "to have", "tense": "pretérito", "img": "images/27-tener-pret.png", "a": "Ayer yo tuve mucha tarea.", "b": "Ayer yo tuvo mucha tarea.", "answer": "a", "why": "yo -> tuve. 'tuvo' is él/ella.", "focus": "yo -> tuve", "correct": "Ayer yo tuve mucha tarea."}, {"n": 28, "verb": "hacer", "en": "to make/do", "tense": "pretérito", "img": "images/28-hacer-pret.png", "a": "Yo hizo un castillo de arena.", "b": "Yo hice un castillo de arena.", "answer": "b", "why": "yo -> hice. 'hizo' is él/ella.", "focus": "yo -> hice", "correct": "Yo hice un castillo de arena."}, {"n": 29, "verb": "estar", "en": "to be (state)", "tense": "pretérito", "img": "images/29-estar-pret.png", "a": "Ayer él estuvo enfermo.", "b": "Ayer él estó enfermo.", "answer": "a", "why": "estar preterite is irregular -> estuvo (not 'estó').", "focus": "irregular: estuvo", "correct": "Ayer él estuvo enfermo."}, {"n": 30, "verb": "dar", "en": "to give", "tense": "pretérito", "img": "images/30-dar-pret.png", "a": "Ella di una flor.", "b": "Ella dio una flor.", "answer": "b", "why": "ella -> dio. 'di' means 'I gave'.", "focus": "ella -> dio", "correct": "Ella dio una flor."}];
+let idx = 0;
+let answered = {};   // index -> 'a'/'b' chosen
+let correctCount = 0;
+
+const $ = id => document.getElementById(id);
+
+function start(){ $('title').classList.add('hide'); $('quiz').classList.remove('hide'); idx=0; render(); }
+
+function render(){
+  const it = DATA[idx];
+  $('cVerb').textContent = it.verb;
+  $('cEn').textContent = it.en;
+  $('cTense').textContent = it.tense;
+  $('cProg').textContent = `Verbo ${idx+1} / ${DATA.length}`;
+  $('cScore').textContent = `Aciertos: ${correctCount}`;
+  $('cImg').style.display='';
+  $('cImg').src = it.img;
+  $('txtA').textContent = it.a;
+  $('txtB').textContent = it.b;
+  // reset option styling
+  for(const id of ['optA','optB']){
+    const el=$(id); el.classList.remove('correct','wrong','dim'); el.removeAttribute('disabled');
+  }
+  const fb=$('fb'); fb.classList.remove('show'); fb.innerHTML='';
+  $('prevBtn').disabled = idx===0;
+  $('nextBtn').textContent = (idx===DATA.length-1) ? 'Resultado →' : 'Siguiente →';
+  $('navHint').textContent = answered[idx] ? '' : 'Elige A o B';
+  // if already answered, show the resolved state
+  if(answered[idx]) reveal(answered[idx], true);
+}
+
+function pick(choice){
+  if(answered[idx]) return;
+  answered[idx]=choice;
+  const it=DATA[idx];
+  if(choice===it.answer) correctCount++;
+  $('cScore').textContent = `Aciertos: ${correctCount}`;
+  reveal(choice, false);
+}
+
+function reveal(choice, silent){
+  const it=DATA[idx];
+  const right=it.answer;
+  const rightEl = right==='a' ? $('optA') : $('optB');
+  const chosenEl = choice==='a' ? $('optA') : $('optB');
+  rightEl.classList.add('correct');
+  if(choice!==right){ chosenEl.classList.add('wrong'); }
+  $('optA').setAttribute('disabled','true'); $('optB').setAttribute('disabled','true');
+  if(choice!==right){ (right==='a'?$('optB'):$('optA')).classList.add('dim'); }
+  const fb=$('fb');
+  const good = choice===right;
+  fb.innerHTML = `<span class="tag" style="color:${good?'var(--good)':'var(--bad)'}">`
+    + (good ? '¡Correcto! ✔' : 'Casi — la correcta es: ' )
+    + `</span>`
+    + (good ? '' : `<span class="why" style="font-weight:700;color:var(--ink)">${it.correct}</span>`)
+    + `<span class="why">${it.why}</span>`
+    + `<span class="focus">${it.focus}</span>`;
+  fb.classList.add('show');
+  $('navHint').textContent='';
+}
+
+function go(d){
+  const next = idx+d;
+  if(next<0) return;
+  if(next>=DATA.length){ showSummary(); return; }
+  idx=next; render();
+}
+
+function showSummary(){
+  $('quiz').classList.add('hide');
+  const s=$('summary'); s.classList.remove('hide');
+  $('finalScore').textContent = `${correctCount} / ${DATA.length}`;
+  const pct = correctCount/DATA.length;
+  let msg;
+  if(pct>=0.9) msg='¡Excelente! Dominas las conjugaciones.';
+  else if(pct>=0.7) msg='¡Muy bien! Solo unos pocos para repasar.';
+  else if(pct>=0.5) msg='Buen trabajo. Vamos a repasar juntos los difíciles.';
+  else msg='Buen comienzo. Lo repasamos paso a paso.';
+  $('finalMsg').textContent=msg;
+}
+
+function restart(){
+  idx=0; answered={}; correctCount=0;
+  $('summary').classList.add('hide'); $('title').classList.add('hide');
+  $('quiz').classList.remove('hide'); render();
+}
+
+document.addEventListener('keydown', e=>{
+  if($('quiz').classList.contains('hide')) {
+    if((e.key==='Enter'||e.key===' '||e.key==='ArrowRight') && !$('title').classList.contains('hide')) start();
+    return;
+  }
+  if(e.key==='ArrowRight') go(1);
+  else if(e.key==='ArrowLeft') go(-1);
+  else if(e.key.toLowerCase()==='a') pick('a');
+  else if(e.key.toLowerCase()==='b') pick('b');
+});
+</script>
+</body>
+</html>
